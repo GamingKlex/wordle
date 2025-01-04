@@ -11,7 +11,7 @@ A simple clone of the popular wordle game!
 - [react-confetti-boom](https://github.com/almond-bongbong/react-confetti-boom) for the confetti 😁
 
 Every day at 12 AM (00:00) UCT a github action is run to pick a new word from the wordlist! <br/>
-This approach makes it easy to simply look at the possible words and today's solution, but can simply run without a server (except for the action)!
+This approach has a downside: you can easily look at the wordlist and today's solution. But this makes it possible to run this on a simple static file host. (except for the action)
 
 # Development
 
