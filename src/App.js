@@ -14,22 +14,7 @@ function App() {
           How to play
         </button>
 
-        <div className="game-container">
-          <GuessedRow
-            letters={[
-              { value: "A", type: "right" },
-              { value: "B", type: "wrong" },
-              { value: "C", type: "wrongpos" },
-              { value: "D", type: "right" },
-              { value: "E", type: "wrong" },
-            ]}
-          />
-          <GuessingRow />
-          <BlankRow />
-          <BlankRow />
-          <BlankRow />
-          <BlankRow />
-        </div>
+        <Game />
 
         <div className="note">
           Yesterday's word was <span className="note-word">APPLE</span>{" "}
@@ -69,6 +54,48 @@ function HowToPlayDialog({ onClose }) {
   );
 }
 
+function Game() {
+  let [word] = useState("ABCDE");
+  let [rows, setRows] = useState([]);
+
+  let [won, setWon] = useState(false);
+
+  /**
+   * @param {string[]} letters
+   */
+  const onSubmit = (letters) => {
+    let newRow = [];
+    letters.forEach((letter, i) => {
+      if (letter === word[i]) {
+        newRow.push({ value: letter, type: "right" });
+      } else if (word.includes(letter)) {
+        newRow.push({ value: letter, type: "wrongpos" });
+      } else {
+        newRow.push({ value: letter, type: "wrong" });
+      }
+    });
+
+    if (letters.join("") === word) {
+      setWon(true);
+    }
+
+    setRows([...rows, newRow]);
+  };
+
+  return (
+    <div className="game-container">
+      {rows.map((row, i) => (
+        <GuessedRow key={i} letters={row} />
+      ))}
+      {rows.length < 6 && !won && <GuessingRow onSubmit={onSubmit} />}
+      {rows.length < (won ? 6 : 5) &&
+        new Array((won ? 6 : 5) - rows.length)
+          .fill(0)
+          .map((_, i) => <BlankRow key={i} />)}
+    </div>
+  );
+}
+
 function GuessedRow({ letters }) {
   return (
     <div className="row">
@@ -104,6 +131,8 @@ function GuessingRow({ onSubmit }) {
     function onKeyDown(e) {
       if (e.key === "Enter") {
         onSubmit(letters);
+        setLetters(["", "", "", "", ""]);
+        document.getElementById(`guess0`).focus();
       }
     }
     document.addEventListener("keydown", onKeyDown);
@@ -114,6 +143,7 @@ function GuessingRow({ onSubmit }) {
     <div className="row">
       <div className="guessing-letter">
         <input
+          autoComplete="off"
           autoFocus
           value={letters[0]}
           onChange={(e) => setLetter(0, e.target.value)}
@@ -123,6 +153,7 @@ function GuessingRow({ onSubmit }) {
       </div>
       <div className="guessing-letter">
         <input
+          autoComplete="off"
           value={letters[1]}
           onChange={(e) => setLetter(1, e.target.value)}
           onFocus={(e) => e.target.select()}
@@ -131,6 +162,7 @@ function GuessingRow({ onSubmit }) {
       </div>
       <div className="guessing-letter">
         <input
+          autoComplete="off"
           value={letters[2]}
           onChange={(e) => setLetter(2, e.target.value)}
           onFocus={(e) => e.target.select()}
@@ -139,6 +171,7 @@ function GuessingRow({ onSubmit }) {
       </div>
       <div className="guessing-letter">
         <input
+          autoComplete="off"
           value={letters[3]}
           onChange={(e) => setLetter(3, e.target.value)}
           onFocus={(e) => e.target.select()}
@@ -147,6 +180,7 @@ function GuessingRow({ onSubmit }) {
       </div>
       <div className="guessing-letter">
         <input
+          autoComplete="off"
           value={letters[4]}
           onChange={(e) => setLetter(4, e.target.value)}
           onFocus={(e) => e.target.select()}
@@ -155,7 +189,14 @@ function GuessingRow({ onSubmit }) {
       </div>
       {letters.join("").length === 5 && (
         <div className="enter-hint">
-          <button className="enter-button">
+          <button
+            onClick={() => {
+              onSubmit(letters);
+              setLetters(["", "", "", "", ""]);
+              document.getElementById(`guess0`).focus();
+            }}
+            className="enter-button"
+          >
             <Check style={{ flexShrink: 0 }} size={20} />
             <div className="original">Press ENTER to submit!</div>
             <div className="hidden">or just click here...</div>
