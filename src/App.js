@@ -1,4 +1,4 @@
-import { Check, CircleHelp, Frown, Trophy, X } from "lucide-react";
+import { Check, CircleHelp, Frown, Loader2, Trophy, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Confetti from "react-confetti-boom";
 
@@ -7,6 +7,8 @@ function App() {
 
   let [lastWord, setLastWord] = useState("loading...");
   let [timeRemaining, setTimeRemaining] = useState("");
+
+  let [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Get the word of yesterday
@@ -21,23 +23,31 @@ function App() {
     let started = new Date();
     function update() {
       let now = new Date();
-      let tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0);
-      tomorrow.setMinutes(0);
-      tomorrow.setSeconds(0);
+      let tomorrow = new Date(now);
+      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+      tomorrow.setUTCHours(0, 0, 0, 0);
       let diff = Math.floor((tomorrow - now) / 1000);
+      if (diff < 0) diff = 0;
       setTimeRemaining(formatTime(diff));
+
+      // If diff is between 24 hours and 23 hours and 59 minutes, display loading and reload the page
+      if (diff < 86400 && diff > 86340) {
+        setLoading(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 60 * 1000);
+      }
 
       // If the day has changed, reload the page
       if (
-        now.getDate() !== started.getDate() ||
-        now.getMonth() !== started.getMonth() ||
-        now.getFullYear() !== started.getFullYear()
+        now.getUTCDate() !== started.getUTCDate() ||
+        now.getUTCMonth() !== started.getUTCMonth() ||
+        now.getUTCFullYear() !== started.getUTCFullYear()
       ) {
         window.location.reload();
       }
     }
+
     update();
     let interval = setInterval(update, 1000);
     return () => clearInterval(interval);
@@ -54,7 +64,16 @@ function App() {
           How to play
         </button>
 
-        <Game />
+        {loading ? (
+          <>
+            <Loader2 className="loader" />
+            <div className="loader-text">
+              Today's wordle is loading... Check back in a minute!
+            </div>
+          </>
+        ) : (
+          <Game />
+        )}
 
         <div className="note">
           Yesterday's word was <span className="note-word">{lastWord}</span>{" "}
