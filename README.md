@@ -1,6 +1,8 @@
-# Wordle
+# <p align="center">Wordle</p>
 
+<p align="center">
 A simple clone of the popular wordle game!
+</p>
 
 ![Wordle Screenshot](./.github/preview.png)
 
