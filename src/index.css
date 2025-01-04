@@ -11,6 +11,13 @@ body {
   min-height: 100vh;
 }
 
+button,
+input {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -106,4 +113,98 @@ body {
   font-size: 1rem;
   font-weight: 500;
   color: #eee;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.blank-letter {
+  background-color: #333;
+  aspect-ratio: 1;
+  width: 6.5rem;
+  border-radius: 1rem;
+  flex: 1;
+  flex-shrink: 0;
+}
+
+.guessed-letter {
+  background-color: #333;
+  aspect-ratio: 1;
+  width: 6.5rem;
+  border-radius: 1rem;
+  flex: 1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.guessed-letter.wrong {
+  color: #ffc1c1;
+  background-color: #633;
+}
+
+.guessed-letter.right {
+  color: rgb(199, 255, 199);
+  background-color: #363;
+}
+
+.guessed-letter.wrongpos {
+  color: #fff8b5;
+  background-color: #763;
+}
+
+.guessing-letter {
+  background-color: #3a3a3a;
+  aspect-ratio: 1;
+  width: 6.5rem;
+  border-radius: 1rem;
+  flex: 1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.guessing-letter input {
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  border-radius: 1rem;
+  transition: 100ms;
+}
+
+.guessing-letter input:focus {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.note {
+  font-size: 1rem;
+  color: #aaa;
+}
+
+.note-word {
+  font-weight: 600;
 }
