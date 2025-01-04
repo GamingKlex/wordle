@@ -1,0 +1,11 @@
+/TODAY 
+Cache-Control: no-cache
+
+/YESTERDAY 
+Cache-Control: no-cache
+
+/wordle/TODAY 
+Cache-Control: no-cache
+
+/wordle/YESTERDAY 
+Cache-Control: no-cache

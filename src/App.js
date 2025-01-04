@@ -12,7 +12,9 @@ function App() {
 
   useEffect(() => {
     // Get the word of yesterday
-    fetch("/wordle/YESTERDAY").then((data) => {
+    fetch("/wordle/YESTERDAY", {
+      cache: "no-store",
+    }).then((data) => {
       data.text().then((text) => {
         setLastWord(text);
       });
@@ -190,7 +192,9 @@ function Game() {
   useEffect(() => {
     // Get the word of the day
     setLoading(true);
-    fetch("/wordle/TODAY")
+    fetch("/wordle/TODAY", {
+      cache: "no-store",
+    })
       .then((data) => {
         data
           .text()
