@@ -107,6 +107,8 @@ function HowToPlayDialog({ onClose }) {
               </div>
             </div>
           </div>
+          Each guess must be a 5-letter word. (if it shakes, it isn't valid)
+          <br />
           If you guess all the letters of the word correctly, you win!
           <br />
           <br />
