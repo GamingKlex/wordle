@@ -3,10 +3,6 @@ name: Deploy React App to GitHub Pages
 on:
   push:
   pull_request:
-  #workflow_run:
-  #  workflows: ["Update today's and yesterday's words!"]
-  #  types:
-  #    - completed
 
 jobs:
   build:

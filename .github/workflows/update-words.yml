@@ -13,6 +13,8 @@ jobs:
       # Step 1: Check out the repository
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
       # Step 2: Set up Node.js
       - name: Setup Node.js
@@ -41,6 +43,7 @@ jobs:
         continue-on-error: true # Avoid failing if no changes are made
 
       - name: Push Changes
-        run: git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GH_ACTIONS_TOKEN }}
+          branch: ${{ github.ref }}
