@@ -1,0 +1,44 @@
+name: Update today's and yesterday's words!
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Run at midnight every day
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16" # Specify the Node.js version
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Step 4: Run the Node.js script
+      - name: Run updateWord Script
+        run: node scripts/updateWord.mjs
+
+      # Step 5: Commit and push changes (if any)
+      - name: Configure Git
+        run: |
+          git config --local user.name "GitHub Actions Bot"
+          git config --local user.email "actions@github.com"
+      - name: Commit Changes
+        run: |
+          git add .
+          git commit -m "Automated word update by Node.js script on $(date --utc)"
+        continue-on-error: true # Avoid failing if no changes are made
+
+      - name: Push Changes
+        run: git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
