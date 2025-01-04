@@ -5,6 +5,7 @@
     "type": "git",
     "url": "git+https://github.com/GamingKlex/wordle.git"
   },
+  "homepage": "https://gamingklex.github.io/wordle",
   "dependencies": {
     "@fontsource/inter": "^5.1.1",
     "cra-template": "1.2.0",

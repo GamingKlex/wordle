@@ -10,7 +10,7 @@ function App() {
 
   useEffect(() => {
     // Get the word of yesterday
-    fetch("/YESTERDAY").then((data) => {
+    fetch("YESTERDAY").then((data) => {
       data.text().then((text) => {
         setLastWord(text);
       });
@@ -161,7 +161,7 @@ function Game() {
 
   useEffect(() => {
     // Get the word of the day
-    fetch("/TODAY")
+    fetch("TODAY")
       .then((data) => {
         data
           .text()
