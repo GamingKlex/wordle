@@ -3,7 +3,7 @@ name: Deploy React App to GitHub Pages
 on:
   push:
     branches:
-      - main  # Trigger workflow on push to the main branch
+      - main # Trigger workflow on push to the main branch
   pull_request:
     branches:
       - main
@@ -13,30 +13,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Check out the repository
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      # Step 1: Check out the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    # Step 2: Set up Node.js
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'  # Specify the Node.js version
+      # Step 2: Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20" # Specify the Node.js version
 
-    # Step 3: Install dependencies
-    - name: Install Dependencies
-      run: npm install
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: npm install
 
-    # Step 4: Build the app
-    - name: Build the React App
-      run: npm run build
+      # Step 4: Build the app
+      - name: Build the React App
+        run: npm run build
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: github-pages
-        path: build
-        retention-days: 2
-      
+      - uses: actions/upload-artifact@v4
+        with:
+          name: github-pages
+          path: build
+          overwrite: true
+          retention-days: 2
+
   # Deploy job
   deploy:
     # Add a dependency to the build job
@@ -44,8 +45,8 @@ jobs:
 
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
 
     # Deploy to the github-pages environment
     environment:
