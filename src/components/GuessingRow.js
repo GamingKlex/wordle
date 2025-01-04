@@ -1,7 +1,7 @@
+import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import isInWordlist from "../utils/isInWordlist";
 import shake from "../utils/shake";
-import { Check } from "lucide-react";
 
 export default function GuessingRow({ onSubmit }) {
   let [letters, setLetters] = useState(["", "", "", "", ""]);
@@ -23,6 +23,12 @@ export default function GuessingRow({ onSubmit }) {
       let nextInput = document.getElementById(`guess${index + 1}`);
       nextInput.focus();
     }
+  };
+
+  const goBack = (currentIndex) => {
+    if (currentIndex === 0) return;
+    let prevInput = document.getElementById(`guess${currentIndex - 1}`);
+    prevInput.focus();
   };
 
   useEffect(() => {
@@ -60,6 +66,9 @@ export default function GuessingRow({ onSubmit }) {
           autoComplete="off"
           value={letters[1]}
           onChange={(e) => setLetter(1, e.target.value)}
+          onKeyDown={(e) =>
+            e.key === "Backspace" && !e.target.value && goBack(1)
+          }
           onFocus={(e) => e.target.select()}
           id="guess1"
         />
@@ -69,6 +78,9 @@ export default function GuessingRow({ onSubmit }) {
           autoComplete="off"
           value={letters[2]}
           onChange={(e) => setLetter(2, e.target.value)}
+          onKeyDown={(e) =>
+            e.key === "Backspace" && !e.target.value && goBack(2)
+          }
           onFocus={(e) => e.target.select()}
           id="guess2"
         />
@@ -78,6 +90,9 @@ export default function GuessingRow({ onSubmit }) {
           autoComplete="off"
           value={letters[3]}
           onChange={(e) => setLetter(3, e.target.value)}
+          onKeyDown={(e) =>
+            e.key === "Backspace" && !e.target.value && goBack(3)
+          }
           onFocus={(e) => e.target.select()}
           id="guess3"
         />
@@ -87,6 +102,9 @@ export default function GuessingRow({ onSubmit }) {
           autoComplete="off"
           value={letters[4]}
           onChange={(e) => setLetter(4, e.target.value)}
+          onKeyDown={(e) =>
+            e.key === "Backspace" && !e.target.value && goBack(4)
+          }
           onFocus={(e) => e.target.select()}
           id="guess4"
         />
