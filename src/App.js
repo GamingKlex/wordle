@@ -1,8 +1,48 @@
-import { Check, CircleHelp, X } from "lucide-react";
+import { Check, CircleHelp, Frown, Trophy, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import Confetti from "react-confetti-boom";
 
 function App() {
   let [dialogOpen, setDialogOpen] = useState(false);
+
+  let [lastWord, setLastWord] = useState("loading...");
+  let [timeRemaining, setTimeRemaining] = useState("");
+
+  useEffect(() => {
+    // Get the word of yesterday
+    fetch("/YESTERDAY").then((data) => {
+      data.text().then((text) => {
+        setLastWord(text);
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    let started = new Date();
+    function update() {
+      let now = new Date();
+      let tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0);
+      tomorrow.setMinutes(0);
+      tomorrow.setSeconds(0);
+      let diff = Math.floor((tomorrow - now) / 1000);
+      setTimeRemaining(formatTime(diff));
+
+      // If the day has changed, reload the page
+      if (
+        now.getDate() !== started.getDate() ||
+        now.getMonth() !== started.getMonth() ||
+        now.getFullYear() !== started.getFullYear()
+      ) {
+        window.location.reload();
+      }
+    }
+    update();
+    let interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       <div className="container">
@@ -17,9 +57,9 @@ function App() {
         <Game />
 
         <div className="note">
-          Yesterday's word was <span className="note-word">APPLE</span>{" "}
-          <span style={{ margin: "0 0.5rem" }}>—</span> New word in 3 min. and
-          20 seconds!
+          Yesterday's word was <span className="note-word">{lastWord}</span>{" "}
+          <span style={{ margin: "0 0.5rem" }}>—</span> New word in{" "}
+          {timeRemaining}!
         </div>
       </div>
       {dialogOpen && <HowToPlayDialog onClose={() => setDialogOpen(false)} />}
@@ -41,13 +81,41 @@ function HowToPlayDialog({ onClose }) {
           </button>
         </div>
         <div className="dialog-text">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quicquid enim
-          a sapientia proficiscitur, id continuo debet expletum esse omnibus
-          suis partibus; Magna laus. Qua igitur re ab deo vincitur, si
-          aeternitate non vincitur? Collatio igitur ista te nihil iuvat. At ego
-          quem huic anteponam non audeo dicere; Est enim effectrix multarum et
-          magnarum voluptatum. Duo Reges: constructio interrete. Nulla profecto
-          est, quin suam vim retineat a primo ad extremum.
+          Playing Wordle is very simple! <br />
+          You have to guess a 5-letter word in 6 guesses.
+          <br />
+          <br />
+          After each guess, the color of the letters will tell you how close you
+          are to the correct word:
+          <div className="preview-row">
+            <div className="preview-col">
+              <div className="preview-item right">U</div>
+              <div className="preview-desc">
+                Correct letter in the correct position
+              </div>
+            </div>
+            <div className="preview-col">
+              <div className="preview-item wrongpos">W</div>
+              <div className="preview-desc">
+                Correct letter in the wrong position
+              </div>
+            </div>
+            <div className="preview-col">
+              <div className="preview-item wrong">U</div>
+              <div className="preview-desc">
+                Word does not contain the letter
+              </div>
+            </div>
+          </div>
+          If you guess all the letters of the word correctly, you win!
+          <br />
+          <br />
+          There may be duplicate letters in the word. <br />
+          Valid letters are A-Z. There are no plurals. (e.g. "VERBS" can't be a
+          word)
+          <br />
+          <br />
+          Good luck!
         </div>
       </div>
     </div>
@@ -55,15 +123,71 @@ function HowToPlayDialog({ onClose }) {
 }
 
 function Game() {
-  let [word] = useState("ABCDE");
-  let [rows, setRows] = useState([]);
+  let [loading, setLoading] = useState(true);
+  let [word, setWord] = useState("");
+  let [rows, _setRows] = useState(
+    JSON.parse(localStorage.getItem("wordle.rows")) || []
+  );
+  let [won, _setWon] = useState(localStorage.getItem("wordle.won") || false);
 
-  let [won, setWon] = useState(false);
+  // Save the rows in localstorage
+  const setRows = (rows) => {
+    _setRows(rows);
+    localStorage.setItem("wordle.rows", JSON.stringify(rows));
+    localStorage.setItem("wordle.saved", Date.now());
+  };
+
+  // Save the won state in localstorage
+  const setWon = (won) => {
+    _setWon(won);
+    localStorage.setItem("wordle.won", won);
+    localStorage.setItem("wordle.saved", Date.now());
+  };
+
+  useEffect(() => {
+    // If we won on the old day, reset the game
+    if (localStorage.getItem("wordle.saved")) {
+      let saved = new Date(parseInt(localStorage.getItem("wordle.saved")));
+      let now = new Date();
+      if (now.getDate() !== saved.getDate()) {
+        localStorage.removeItem("wordle.rows");
+        localStorage.removeItem("wordle.won");
+        localStorage.removeItem("wordle.saved");
+        setRows([]);
+        setWon(false);
+      }
+    } else localStorage.setItem("wordle.saved", Date.now());
+  }, []);
+
+  useEffect(() => {
+    // Get the word of the day
+    fetch("/TODAY")
+      .then((data) => {
+        data
+          .text()
+          .then((text) => {
+            setWord(text);
+            setLoading(false);
+          })
+          .catch(() => {
+            alert(
+              "Failed to load the word of the day... Try refreshing the page!"
+            );
+          });
+      })
+      .catch(() => {
+        alert("Failed to load the word of the day... Try refreshing the page!");
+      });
+  }, []);
 
   /**
    * @param {string[]} letters
    */
   const onSubmit = (letters) => {
+    if (loading)
+      return alert(
+        "The word of the day has not loaded yet... Try refreshing the page!"
+      );
     let newRow = [];
     letters.forEach((letter, i) => {
       if (letter === word[i]) {
@@ -83,16 +207,31 @@ function Game() {
   };
 
   return (
-    <div className="game-container">
-      {rows.map((row, i) => (
-        <GuessedRow key={i} letters={row} />
-      ))}
-      {rows.length < 6 && !won && <GuessingRow onSubmit={onSubmit} />}
-      {rows.length < (won ? 6 : 5) &&
-        new Array((won ? 6 : 5) - rows.length)
-          .fill(0)
-          .map((_, i) => <BlankRow key={i} />)}
-    </div>
+    <>
+      <div className="game-container">
+        {rows.map((row, i) => (
+          <GuessedRow key={i} letters={row} />
+        ))}
+        {rows.length < 6 && !won && <GuessingRow onSubmit={onSubmit} />}
+        {rows.length < (won ? 6 : 5) &&
+          new Array((won ? 6 : 5) - rows.length)
+            .fill(0)
+            .map((_, i) => <BlankRow key={i} />)}
+      </div>
+      {won && <Confetti mode="boom" particleCount={50} />}
+      {won && (
+        <div className="won-message">
+          <Trophy />
+          You won in {rows.length} guesses!
+        </div>
+      )}
+      {rows.length === 6 && !won && (
+        <div className="lost-message">
+          <Frown />
+          You lost! The word was {word}.
+        </div>
+      )}
+    </>
   );
 }
 
@@ -116,8 +255,10 @@ function GuessingRow({ onSubmit }) {
    * @param {string} value
    */
   const setLetter = (index, value) => {
+    let letter = value.toUpperCase().slice(-1);
+    if (!/^[A-Z]$/.test(letter)) return;
     let newLetters = [...letters];
-    newLetters[index] = value.toUpperCase().slice(-1);
+    newLetters[index] = letter;
     setLetters(newLetters);
 
     if (value.length > 0 && index < 4) {
@@ -132,7 +273,8 @@ function GuessingRow({ onSubmit }) {
       if (e.key === "Enter") {
         onSubmit(letters);
         setLetters(["", "", "", "", ""]);
-        document.getElementById(`guess0`).focus();
+        let input = document.getElementById(`guess0`);
+        if (input) input.focus();
       }
     }
     document.addEventListener("keydown", onKeyDown);
@@ -193,7 +335,8 @@ function GuessingRow({ onSubmit }) {
             onClick={() => {
               onSubmit(letters);
               setLetters(["", "", "", "", ""]);
-              document.getElementById(`guess0`).focus();
+              let input = document.getElementById(`guess0`);
+              if (input) input.focus();
             }}
             className="enter-button"
           >
@@ -217,6 +360,17 @@ function BlankRow() {
       <div className="blank-letter"></div>
     </div>
   );
+}
+
+function formatTime(time) {
+  let hours = Math.floor(time / 3600);
+  let minutes = Math.floor((time % 3600) / 60);
+  let seconds = time % 60;
+  let formatted = "";
+  if (hours > 0) formatted += hours + " hrs, ";
+  if (minutes > 0) formatted += minutes + " mins and ";
+  formatted += seconds + " secs";
+  return formatted;
 }
 
 export default App;

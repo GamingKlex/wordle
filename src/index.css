@@ -250,3 +250,78 @@ input {
 .enter-button:hover > .hidden {
   display: block;
 }
+
+.won-message {
+  margin-bottom: 2.5rem;
+  margin-top: -0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #3a3;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lost-message {
+  margin-bottom: 2.5rem;
+  margin-top: -0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #a33;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lost-word {
+  font-weight: 600;
+}
+
+.preview-row {
+  margin: 1rem 0;
+  display: flex;
+  gap: 1rem;
+  position: relative;
+  justify-content: center;
+}
+.preview-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  align-items: center;
+}
+.preview-item {
+  background-color: #333;
+  aspect-ratio: 1;
+  width: 3rem;
+  border-radius: 0.66rem;
+  flex: 1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.preview-item.right {
+  color: rgb(199, 255, 199);
+  background-color: #363;
+}
+.preview-item.wrong {
+  color: #ffc1c1;
+  background-color: #633;
+}
+.preview-item.wrongpos {
+  color: #fff8b5;
+  background-color: #763;
+}
+.preview-desc {
+  font-size: 1rem;
+  max-width: 10rem;
+  color: #aaa;
+  text-align: center;
+}
