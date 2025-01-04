@@ -31,12 +31,9 @@ jobs:
       - name: Build the React App
         run: npm run build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
         with:
-          name: github-pages
-          path: build
-          overwrite: true
-          retention-days: 2
+          path: build/
 
   # Deploy job
   deploy:
