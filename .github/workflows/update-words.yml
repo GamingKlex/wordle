@@ -2,7 +2,7 @@ name: Update today's and yesterday's words!
 
 on:
   schedule:
-    - cron: "0 0 * * *" # Run at midnight every day
+    - cron: "*/5 * * * *" # Run at midnight every day
 
 jobs:
   run-script:
