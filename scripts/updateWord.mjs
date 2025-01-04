@@ -17,7 +17,7 @@ fs.cpSync(todayFile, yesterdayFile, { force: true });
 console.log("Updating today's word...");
 
 const words = fs
-  .readFileSync(path.join(__dirname, "../wordlist.txt"), "utf-8")
+  .readFileSync(path.join(__dirname, "../public/wordlist.txt"), "utf-8")
   .split("\n")
   .filter((word) => word !== yesterdayWord);
 const word = words[Math.floor(Math.random() * words.length)];

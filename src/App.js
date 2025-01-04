@@ -1,5 +1,5 @@
 import { Check, CircleHelp, Frown, Trophy, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Confetti from "react-confetti-boom";
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
 
   useEffect(() => {
     // Get the word of yesterday
-    fetch("YESTERDAY").then((data) => {
+    fetch("/wordle/YESTERDAY").then((data) => {
       data.text().then((text) => {
         setLastWord(text);
       });
@@ -134,39 +134,39 @@ function Game() {
   const setRows = (rows) => {
     _setRows(rows);
     localStorage.setItem("wordle.rows", JSON.stringify(rows));
-    localStorage.setItem("wordle.saved", Date.now());
+    localStorage.setItem("wordle.todaysWord", btoa(word));
   };
 
   // Save the won state in localstorage
   const setWon = (won) => {
     _setWon(won);
     localStorage.setItem("wordle.won", won);
-    localStorage.setItem("wordle.saved", Date.now());
+    localStorage.setItem("wordle.todaysWord", btoa(word));
   };
 
   useEffect(() => {
-    // If we won on the old day, reset the game
-    if (localStorage.getItem("wordle.saved")) {
-      let saved = new Date(parseInt(localStorage.getItem("wordle.saved")));
-      let now = new Date();
-      if (now.getDate() !== saved.getDate()) {
+    if (!word) return;
+    // If we won on the old word, reset the game
+    if (localStorage.getItem("wordle.todaysWord")) {
+      if (atob(localStorage.getItem("wordle.todaysWord")) !== word) {
         localStorage.removeItem("wordle.rows");
         localStorage.removeItem("wordle.won");
-        localStorage.removeItem("wordle.saved");
-        setRows([]);
-        setWon(false);
+        localStorage.removeItem("wordle.todaysWord");
+        _setRows([]);
+        _setWon(false);
       }
-    } else localStorage.setItem("wordle.saved", Date.now());
-  }, []);
+    } else localStorage.setItem("wordle.todaysWord", btoa(word));
+  }, [word]);
 
   useEffect(() => {
     // Get the word of the day
-    fetch("TODAY")
+    setLoading(true);
+    fetch("/wordle/TODAY")
       .then((data) => {
         data
           .text()
           .then((text) => {
-            setWord(text);
+            setWord(text.toUpperCase().trim());
             setLoading(false);
           })
           .catch(() => {
@@ -188,6 +188,7 @@ function Game() {
       return alert(
         "The word of the day has not loaded yet... Try refreshing the page!"
       );
+
     let newRow = [];
     letters.forEach((letter, i) => {
       if (letter === word[i]) {
@@ -250,13 +251,15 @@ function GuessedRow({ letters }) {
 function GuessingRow({ onSubmit }) {
   let [letters, setLetters] = useState(["", "", "", "", ""]);
 
+  const row = useRef(null);
+
   /**
    * @param {number} index
    * @param {string} value
    */
   const setLetter = (index, value) => {
     let letter = value.toUpperCase().slice(-1);
-    if (!/^[A-Z]$/.test(letter)) return;
+    if (!/^([A-Z]|)$/.test(letter)) return;
     let newLetters = [...letters];
     newLetters[index] = letter;
     setLetters(newLetters);
@@ -269,12 +272,16 @@ function GuessingRow({ onSubmit }) {
 
   useEffect(() => {
     if (letters.join("").length !== 5) return;
-    function onKeyDown(e) {
+    async function onKeyDown(e) {
       if (e.key === "Enter") {
-        onSubmit(letters);
-        setLetters(["", "", "", "", ""]);
-        let input = document.getElementById(`guess0`);
-        if (input) input.focus();
+        if (await isInWordlist(letters.join(""))) {
+          onSubmit(letters);
+          setLetters(["", "", "", "", ""]);
+          let input = document.getElementById(`guess0`);
+          if (input) input.focus();
+        } else {
+          shake(row.current);
+        }
       }
     }
     document.addEventListener("keydown", onKeyDown);
@@ -282,7 +289,7 @@ function GuessingRow({ onSubmit }) {
   }, [letters, onSubmit]);
 
   return (
-    <div className="row">
+    <div className="row" ref={row}>
       <div className="guessing-letter">
         <input
           autoComplete="off"
@@ -332,11 +339,13 @@ function GuessingRow({ onSubmit }) {
       {letters.join("").length === 5 && (
         <div className="enter-hint">
           <button
-            onClick={() => {
-              onSubmit(letters);
-              setLetters(["", "", "", "", ""]);
-              let input = document.getElementById(`guess0`);
-              if (input) input.focus();
+            onClick={async () => {
+              if (await isInWordlist(letters.join(""))) {
+                onSubmit(letters);
+                setLetters(["", "", "", "", ""]);
+                let input = document.getElementById(`guess0`);
+                if (input) input.focus();
+              } else shake(row.current);
             }}
             className="enter-button"
           >
@@ -347,6 +356,28 @@ function GuessingRow({ onSubmit }) {
         </div>
       )}
     </div>
+  );
+}
+
+function shake(el) {
+  const isReduced =
+    window.matchMedia(`(prefers-reduced-motion: reduce)`) === true ||
+    window.matchMedia(`(prefers-reduced-motion: reduce)`).matches === true;
+
+  if (isReduced) return;
+
+  el.animate(
+    [
+      { transform: "translateX(-10px)" },
+      { transform: "translateX(10px)" },
+      { transform: "translateX(-10px)" },
+      { transform: "translateX(10px)" },
+      { transform: "translateX(0px)" },
+    ],
+    {
+      duration: 200,
+      easing: "ease-in-out",
+    }
   );
 }
 
@@ -371,6 +402,19 @@ function formatTime(time) {
   if (minutes > 0) formatted += minutes + " mins and ";
   formatted += seconds + " secs";
   return formatted;
+}
+
+let wordlist = null;
+
+async function isInWordlist(word) {
+  if (!wordlist) {
+    let res = await fetch("/wordle/wordlist.txt").catch(() => {
+      alert("Failed to load the wordlist... Try refreshing the page!");
+    });
+    let text = await res.text();
+    wordlist = text.split("\n").map((word) => word.toUpperCase().trim());
+  }
+  return wordlist.includes(word);
 }
 
 export default App;
