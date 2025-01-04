@@ -61,6 +61,14 @@ function App() {
           <span style={{ margin: "0 0.5rem" }}>—</span> New word in{" "}
           {timeRemaining}!
         </div>
+        <a
+          className="github-link"
+          target="_blank"
+          rel="noreferrer"
+          href="https://github.com/GamingKlex/wordle"
+        >
+          View on GitHub
+        </a>
       </div>
       {dialogOpen && <HowToPlayDialog onClose={() => setDialogOpen(false)} />}
     </>

@@ -325,3 +325,15 @@ input {
   color: #aaa;
   text-align: center;
 }
+
+.github-link {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  color: #888;
+  text-decoration: none;
+}
+
+.github-link:hover {
+  color: #aaa;
+  text-decoration: underline;
+}
