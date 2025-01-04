@@ -126,6 +126,7 @@ input {
 .row {
   display: flex;
   gap: 0.5rem;
+  position: relative;
 }
 
 .blank-letter {
@@ -207,4 +208,45 @@ input {
 
 .note-word {
   font-weight: 600;
+}
+
+.enter-hint {
+  bottom: 50%;
+  right: 0;
+  position: absolute;
+  padding-left: 1rem;
+  transform: translateX(100%) translateY(50%);
+}
+
+.enter-button {
+  background: none;
+  text-align: left;
+  border: none;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: #aaa;
+  max-width: 8rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: 100ms;
+}
+
+.enter-button:hover {
+  color: #ccc;
+  background-color: #333;
+}
+
+.enter-button > .original {
+  display: block;
+}
+.enter-button:hover > .original {
+  display: none;
+}
+
+.enter-button > .hidden {
+  display: none;
+}
+.enter-button:hover > .hidden {
+  display: block;
 }

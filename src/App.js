@@ -1,5 +1,5 @@
-import { CircleHelp, X } from "lucide-react";
-import { useState } from "react";
+import { Check, CircleHelp, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 function App() {
   let [dialogOpen, setDialogOpen] = useState(false);
@@ -37,12 +37,12 @@ function App() {
           20 seconds!
         </div>
       </div>
-      {dialogOpen && <Dialog onClose={() => setDialogOpen(false)} />}
+      {dialogOpen && <HowToPlayDialog onClose={() => setDialogOpen(false)} />}
     </>
   );
 }
 
-function Dialog({ onClose }) {
+function HowToPlayDialog({ onClose }) {
   return (
     <div className="dialog">
       <div className="dialog-window">
@@ -81,24 +81,87 @@ function GuessedRow({ letters }) {
   );
 }
 
-function GuessingRow() {
+function GuessingRow({ onSubmit }) {
+  let [letters, setLetters] = useState(["", "", "", "", ""]);
+
+  /**
+   * @param {number} index
+   * @param {string} value
+   */
+  const setLetter = (index, value) => {
+    let newLetters = [...letters];
+    newLetters[index] = value.toUpperCase().slice(-1);
+    setLetters(newLetters);
+
+    if (value.length > 0 && index < 4) {
+      let nextInput = document.getElementById(`guess${index + 1}`);
+      nextInput.focus();
+    }
+  };
+
+  useEffect(() => {
+    if (letters.join("").length !== 5) return;
+    function onKeyDown(e) {
+      if (e.key === "Enter") {
+        onSubmit(letters);
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydonw", onKeyDown);
+  }, [letters, onSubmit]);
+
   return (
     <div className="row">
       <div className="guessing-letter">
-        <input />
+        <input
+          autoFocus
+          value={letters[0]}
+          onChange={(e) => setLetter(0, e.target.value)}
+          onFocus={(e) => e.target.select()}
+          id="guess0"
+        />
       </div>
       <div className="guessing-letter">
-        <input />
+        <input
+          value={letters[1]}
+          onChange={(e) => setLetter(1, e.target.value)}
+          onFocus={(e) => e.target.select()}
+          id="guess1"
+        />
       </div>
       <div className="guessing-letter">
-        <input />
+        <input
+          value={letters[2]}
+          onChange={(e) => setLetter(2, e.target.value)}
+          onFocus={(e) => e.target.select()}
+          id="guess2"
+        />
       </div>
       <div className="guessing-letter">
-        <input />
+        <input
+          value={letters[3]}
+          onChange={(e) => setLetter(3, e.target.value)}
+          onFocus={(e) => e.target.select()}
+          id="guess3"
+        />
       </div>
       <div className="guessing-letter">
-        <input />
+        <input
+          value={letters[4]}
+          onChange={(e) => setLetter(4, e.target.value)}
+          onFocus={(e) => e.target.select()}
+          id="guess4"
+        />
       </div>
+      {letters.join("").length === 5 && (
+        <div className="enter-hint">
+          <button className="enter-button">
+            <Check style={{ flexShrink: 0 }} size={20} />
+            <div className="original">Press ENTER to submit!</div>
+            <div className="hidden">or just click here...</div>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
